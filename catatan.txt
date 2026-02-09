@@ -1,0 +1,10 @@
+Selain aplikasi MTSyslog dari MikroTik diantaranya ada Kiwi Syslog Server, SNMPSoft Syslog Watcher, Whatsup Syslog, Splunk Light, 
+
+tools atau service yang di gunakan:
+- rsyslog.service
+
+
+mitigasi:
+1. nmap
+- misal sudah kebaca anomali yang melakukan nmap langsung di blok ipnya.
+- 
