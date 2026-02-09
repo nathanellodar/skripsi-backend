@@ -12,6 +12,7 @@ def main():
         for line in follow(f):
             log = parse_log(line)
             alerts = engine.process(log)
+            # print("LOG:", log)
 
             for alert in alerts:
                 print(alert)
