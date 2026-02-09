@@ -3,6 +3,9 @@ from collections import defaultdict, deque
 from datetime import timedelta
 from config import PORTSCAN_THRESHOLD, PORTSCAN_WINDOW
 
+# debug
+import json
+
 class PortScanDetector:
     def __init__(self):
         self.ports = defaultdict(lambda: defaultdict(deque))
@@ -26,5 +29,6 @@ class PortScanDetector:
 
         if len(active_ports) >= PORTSCAN_THRESHOLD:
             return f"[ALERT] Port Scanning from {ip} ({len(active_ports)} ports)"
-
+        # debug
+        print(json.dumps(self.ports, default=str, indent=2))
         return None
