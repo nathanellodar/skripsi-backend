@@ -16,8 +16,18 @@ def parse_log(line):
         print("PARSE FAIL:", line)
         return None
 
+    # Parse timestamp from log line
+    ts_str = m.group("ts")
+    # Remove microseconds if present and timezone info for simplicity
+    # But we'll use fromisoformat which handles timezone
+    try:
+        timestamp = datetime.fromisoformat(ts_str)
+    except ValueError:
+        # Fallback to current time if parsing fails
+        timestamp = datetime.now()
+
     return {
-        "timestamp": datetime.now(),
+        "timestamp": timestamp,
         "action": m.group(2),   # bisa None
         "proto": m.group("proto"),
         "src_ip": m.group("src_ip"),

@@ -1,10 +1,93 @@
-Selain aplikasi MTSyslog dari MikroTik diantaranya ada Kiwi Syslog Server, SNMPSoft Syslog Watcher, Whatsup Syslog, Splunk Light, 
+Berikut adalah penjelasan alur kerja sistem dan fungsinya:
 
-tools atau service yang di gunakan:
-- rsyslog.service
+Alur Kerja Sistem (Textual Diagram)
+[Mikrotik Router] 
+        ↓ (Firewall Logs)
+[Log File: log-example.txt] 
+        ↓ (main.py reads file)
+[get_log.py: follow() function] ← (Not used in current main.py, but available for live tailing)
+        ↓
+[parser.py: parse_log() function] 
+        ↓ (Converts raw log to structured dict)
+[engine.py: DetectionEngine.process()] 
+        ↓
+[attack_detec/brute.py: BruteForceDetector.process()]
+[attack_detec/ddos.py: DDoSDetector.process()]
+[attack_detec/scan.py: PortScanDetector.process()]
+        ↓ (Each returns alert string or None)
+[main.py: Prints alerts + raw log]
+        ↓
+[Output to Console]
+Fungsi Setiap Program dan Hubungan Pemanggilan
+main.py (Entry Point)
+Fungsi: Menginisialisasi DetectionEngine, membaca file log, memproses setiap baris, menampilkan hasil
+Memanggil:
+get_log.follow() (komentari di main.py saat ini)
+parser.parse_log()
+engine.process()
+parser.py
+Fungsi: Mengubah baris log Mikrotik mentah menjadi dictionary terstruktur dengan timestamp, IP, port, protocol, dll.
+Memanggil: Tidak memanggil modul lain (hanya menggunakan re dan datetime)
+Dipanggil oleh: main.py
+engine.py
+Fungsi: Orkestrator yang menjalankan semua detector sekurang-kurangnya dan mengumpulkan hasilnya
+Memanggil:
+BruteForceDetector.process()
+PortScanDetector.process()
+DDoSDetector.process()
+Dipanggil oleh: main.py
+attack_detec/brute.py
+Fungsi: Deteksi brute force SSH (upaya login berulang ke port 22 dengan action "drop")
+Memanggil: Tidak memanggil modul lain (hanya menggunakan konfigurasi)
+Dipanggil oleh: engine.py
+attack_detec/ddos.py
+Fungsi: Deteksi DDoS/flood (permintaan berlebihan dari satu IP dalam window waktu)
+Memanggil: Tidak memanggil modul lain
+Dipanggil oleh: engine.py
+attack_detec/scan.py
+Fungsi: Deteksi port scanning (satu IP mengakses banyak port berbeda dalam window waktu)
+Memanggil: Tidak memanggil modul lain
+Dipanggil oleh: engine.py
+get_log.py
+Fungsi: Utility untuk "tail -f" file log (membaca baris baru seiring ditambahkan)
+Memanggil: Tidak memanggil modul lain
+Dipanggil oleh: main.py (komentari saat ini untuk penggunaan file statis)
+config.py
+Fungsi: Menyimpan semua parameter konfigurasi (thresholds dan time windows)
+Tidak memanggil atau dipanggil langsung - nilai-nilainya diimpor oleh detector files
+Konfirmasi Deteksi Berbasis Threshold
+Ya, sistem ini sepenuhnya menggunakan deteksi berbasis threshold dengan konfigurasi dari config.py:
 
+Setiap detector mengikuti pola ini:
 
-mitigasi:
-1. nmap
-- misal sudah kebaca anomali yang melakukan nmap langsung di blok ipnya.
-- 
+Menyimpan timestamp kejadian per IP (gunakan defaultdict(deque))
+Untuk setiap log baru:
+Menambahkan timestamp ke deque yang sesuai
+Menghapus timestamp yang lebih lama dari window waktu (while q and now - q[0] > timedelta(seconds=WINDOW): q.popleft())
+Memeriksa jika jumlah kejadian yang tersisa ≥ threshold
+Jika ya, mengembalikan string alert
+Concrete Examples dari config.py saat ini:
+
+# DDoS Detection
+DDOS_THRESHOLD = 2            # Alert jika ≥2 request dari sama IP
+DDOS_WINDOW = 5               # Dalam window 5 detik
+
+# Port Scanning Detection
+PORTSCAN_THRESHOLD = 2        # Alert jika ≥2 port berbeda diakses
+PORTSCAN_WINDOW = 10          # Dalam window 10 detik
+
+# Brute Force Detection
+BRUTE_FORCE_THRESHOLD = 3     # Alert jika ≥3 upaya SSH gagal
+BRUTE_FORCE_WINDOW = 10       # Dalam window 10 detik
+Dengan konfigurasi ini dan log contoh Anda, sistem telah berhasil mendeteksi:
+
+DDoS dari IP 109.252.190.230 (permintaan berulang ke port 22535)
+DDoS dari IP 47.31.90.204 (permintaan berulang ke port 22535)
+DDoS dari IP 110.138.80.10 (permintaan berulang ke port 22535)
+DDoS dari IP 91.214.85.190 (permintaan berulang ke port 1880)
+Untuk penggunaan nyata dengan log Mikrotik live, cukup ubah main.py:
+
+Buang komentar baris dengan follow(f)
+Atur LOG_FILE = "/var/log/mikrotik1.log" (sesuaikan dengan path sebenarnya)
+Pastikan user yang menjalankan script memiliki izin baca file log tersebut
+Sistem sudah modular, efisien (O(1) per log entry), dan siap untuk deteksi serangan secara real-time berdasarkan threshold yang dapat dikonfigurasi.
