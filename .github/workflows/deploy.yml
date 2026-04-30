@@ -47,7 +47,7 @@ jobs:
             cd /home/thanel/skripsi/skripsi-backend
 
             echo "Pull latest code..."
-            git pull origin main
+            git pull origin master
 
             echo "Activate virtualenv..."
             source venv/bin/activate
