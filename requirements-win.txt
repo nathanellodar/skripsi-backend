@@ -181,6 +181,8 @@ python-louvain==0.16
 pytweening==1.2.0
 pytz==2023.3.post1
 pywhatkit==5.4
+pywin32==310
+pywin32-ctypes==0.2.3
 PyYAML==6.0.1
 pyzmq==26.4.0
 qasync==0.27.1
