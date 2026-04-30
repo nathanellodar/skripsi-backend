@@ -44,18 +44,21 @@ jobs:
 
       - name: Deploy application
         run: |
-          cd /home/thanel/skripsi/skripsi-backend
+            cd /home/thanel/skripsi/skripsi-backend
 
-          echo "Pull latest code..."
-          git pull origin master
+            echo "Pull latest code..."
+            git pull origin main
 
-          echo "Activate virtualenv..."
-          source venv/bin/activate
+            echo "Activate virtualenv..."
+            source venv/bin/activate
 
-          echo "Install dependencies..."
-          pip install -r requirements.txt
+            echo "Upgrade pip..."
+            pip install --upgrade pip
 
-          echo "Restart service..."
-          sudo systemctl restart attack-detect
+            echo "Install dependencies..."
+            pip install -r requirements.txt
 
-          echo "Deploy selesai ✅"
+            echo "Restart service..."
+            sudo systemctl restart attack-detect
+
+            echo "Deploy selesai ✅"
