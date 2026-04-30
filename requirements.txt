@@ -159,7 +159,6 @@ pydantic==2.5.1
 pydantic_core==2.14.3
 pydeck==0.8.1b0
 pygame==2.6.0
-PyGetWindow==0.0.9
 Pygments==2.16.1
 PyJWT==2.8.0
 pymdown-extensions==10.4
@@ -288,7 +287,6 @@ websocket-client==1.8.0
 Werkzeug==3.0.3
 wheel==0.41.3
 wikipedia==1.4.0
-win32-setctime==1.1.0
 wsproto==1.2.0
 xgboost==2.0.3
 xlrd==2.0.1
