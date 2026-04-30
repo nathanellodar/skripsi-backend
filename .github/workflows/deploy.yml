@@ -58,7 +58,4 @@ jobs:
             echo "Install dependencies..."
             pip install -r requirements.txt
 
-            echo "Restart service..."
-            sudo systemctl restart attack-detect
-
             echo "Deploy selesai ✅"
