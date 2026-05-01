@@ -1,17 +1,18 @@
 # engine.py
-from attack_detec.brute import BruteForceDetector
-from attack_detec.scan import PortScanDetector
-from attack_detec.ddos import DDoSDetector
+from attack_detec import BruteForceDetector, PortScanDetector, DDoSDetector
+from attack_detec.base import BaseDetector
+
 
 class DetectionEngine:
     def __init__(self):
-        self.detectors = [
+        self.detectors: list[BaseDetector] = [
             BruteForceDetector(),
             PortScanDetector(),
-            DDoSDetector()
+            DDoSDetector(),
         ]
 
-    def process(self, log):
+    def process(self, log: dict) -> list[str]:
+        """Jalankan semua detector, kembalikan list alert (bisa kosong)."""
         alerts = []
         for detector in self.detectors:
             result = detector.process(log)

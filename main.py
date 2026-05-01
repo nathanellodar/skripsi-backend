@@ -2,27 +2,25 @@
 from get_log import follow
 from parser import parse_log
 from engine import DetectionEngine
+from alert_writer import write_alert
 
-LOG_FILE = "log-example.txt"
 
 def main():
     engine = DetectionEngine()
+    print("[main] System started. Waiting for logs...\n")
 
-    with open(LOG_FILE, "r") as f:
-        # Read all existing lines instead of following
-        lines = f.readlines()
-        for line in lines:
-            line = line.strip()
-            if line:  # Skip empty lines
-                log = parse_log(line)
-                # Print parsed log for debugging
-                print(f"Parsed: {log['src_ip']}:{log['src_port']} -> {log['dst_ip']}:{log['dst_port']} ({log['proto']})")
-                alerts = engine.process(log)
-                # print("LOG:", log)
+    for line in follow():
+        log = parse_log(line)
+        if not log:
+            continue
 
-                for alert in alerts:
-                    print(alert)
-                    print("   Raw:", log["raw"])
+        print(f"[LOG] {log['src_ip']}:{log['src_port']} -> {log['dst_ip']}:{log['dst_port']} ({log['proto']})")
+
+        alerts = engine.process(log)
+        for alert in alerts:
+            print(f"  !! {alert}")
+            write_alert(alert, log)
+
 
 if __name__ == "__main__":
     main()

@@ -1,29 +1,45 @@
-# detectors/brute.py
+# attack_detec/brute.py
 from collections import defaultdict, deque
 from datetime import timedelta
-from config import BRUTE_FORCE_THRESHOLD, BRUTE_FORCE_WINDOW
 
-class BruteForceDetector:
+from attack_detec.base import BaseDetector
+from config import BRUTE_FORCE_PORTS, BRUTE_FORCE_THRESHOLD, BRUTE_FORCE_WINDOW
+
+PORT_LABEL = {
+    22:   "SSH",
+    23:   "Telnet",
+    3389: "RDP",
+    8291: "Winbox",
+}
+
+class BruteForceDetector(BaseDetector):
+    name = "BruteForce"
+
     def __init__(self):
-        self.hits = defaultdict(deque)
+        # { ip: deque of timestamps }
+        self.hits: dict[str, deque] = defaultdict(deque)
 
-    def process(self, log):
-        if not log:
+    def process(self, log: dict) -> str | None:
+        if log["dst_port"] not in BRUTE_FORCE_PORTS:
             return None
 
-        if log["dst_port"] != 22 or log["action"] != "drop":
-            return None
-
-        ip = log["src_ip"]
+        ip  = log["src_ip"]
         now = log["timestamp"]
+        q   = self.hits[ip]
 
-        q = self.hits[ip]
         q.append(now)
 
-        while q and now - q[0] > timedelta(seconds=BRUTE_FORCE_WINDOW):
+        # Buang entri di luar window
+        cutoff = now - timedelta(seconds=BRUTE_FORCE_WINDOW)
+        while q and q[0] < cutoff:
             q.popleft()
 
         if len(q) >= BRUTE_FORCE_THRESHOLD:
-            return f"[ALERT] SSH Brute Force from {ip}"
+            label = PORT_LABEL.get(log["dst_port"], f"port {log['dst_port']}")
+            return (
+                f"[BRUTE-FORCE] src={ip} "
+                f"target={label} "
+                f"hits={len(q)} in {BRUTE_FORCE_WINDOW}s"
+            )
 
         return None

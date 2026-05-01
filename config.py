@@ -1,10 +1,14 @@
 # config.py
 
-BRUTE_FORCE_THRESHOLD = 3      # 3 attempts
-BRUTE_FORCE_WINDOW = 10        # dalam 10 detik
+# --- Brute Force ---
+BRUTE_FORCE_PORTS   = [22, 23, 3389, 8291]  # SSH, Telnet, RDP, Winbox
+BRUTE_FORCE_THRESHOLD = 5                    # hits dalam window
+BRUTE_FORCE_WINDOW    = 30                   # detik
 
-PORTSCAN_THRESHOLD = 2        # 2 port berbeda (lowered for testing)
-PORTSCAN_WINDOW = 10          # dalam 10 detik
+# --- Port Scan ---
+PORTSCAN_THRESHOLD = 5   # jumlah port unik dalam window
+PORTSCAN_WINDOW    = 10  # detik
 
-DDOS_THRESHOLD = 2            # 2 request (lowered for testing)
-DDOS_WINDOW = 5               # dalam 5 detik
+# --- DDoS ---
+DDOS_THRESHOLD = 100  # total paket dari 1 IP dalam window
+DDOS_WINDOW    = 5    # detik
