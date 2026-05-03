@@ -10,5 +10,5 @@ PORTSCAN_THRESHOLD = 5   # jumlah port unik dalam window
 PORTSCAN_WINDOW    = 10  # detik
 
 # --- DDoS ---
-DDOS_THRESHOLD = 100  # total paket dari 1 IP dalam window
+DDOS_THRESHOLD = 20  # total paket dari 1 IP dalam window
 DDOS_WINDOW    = 5    # detik

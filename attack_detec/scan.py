@@ -15,6 +15,8 @@ class PortScanDetector(BaseDetector):
 
     def process(self, log: dict) -> str | None:
         # Port scan biasanya TCP SYN atau UDP ke banyak port
+        if log.get("prefix") != "[FW]":
+            return None
         if log["proto"] not in ("TCP", "UDP"):
             return None
 

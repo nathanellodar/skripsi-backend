@@ -3,10 +3,13 @@ from get_log import follow
 from parser import parse_log
 from engine import DetectionEngine
 from alert_writer import write_alert
+from mitigation import mitigator
 
 
 def main():
-    engine = DetectionEngine()
+    engine    = DetectionEngine()
+    mitigators = mitigator.Mitigator()
+
     print("[main] System started. Waiting for logs...\n")
 
     for line in follow():
@@ -18,8 +21,14 @@ def main():
 
         alerts = engine.process(log)
         for alert in alerts:
+            # Console — semua alert tampil
             print(f"  !! {alert}")
+
+            # File — deduplikasi per IP per jam
             write_alert(alert, log)
+
+            # Mitigasi — blok IP di MikroTik
+            mitigators.handle(alert, log)
 
 
 if __name__ == "__main__":

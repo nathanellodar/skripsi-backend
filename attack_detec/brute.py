@@ -18,8 +18,11 @@ class BruteForceDetector(BaseDetector):
     def __init__(self):
         # { ip: deque of timestamps }
         self.hits: dict[str, deque] = defaultdict(deque)
-
+    
     def process(self, log: dict) -> str | None:
+        if log.get("prefix") != "[FW]":
+            return None
+        
         if log["dst_port"] not in BRUTE_FORCE_PORTS:
             return None
 
@@ -38,6 +41,7 @@ class BruteForceDetector(BaseDetector):
             label = PORT_LABEL.get(log["dst_port"], f"port {log['dst_port']}")
             return (
                 f"[BRUTE-FORCE] src={ip} "
+                f"port={log['dst_port']} "
                 f"target={label} "
                 f"hits={len(q)} in {BRUTE_FORCE_WINDOW}s"
             )

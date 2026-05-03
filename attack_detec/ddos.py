@@ -10,13 +10,16 @@ class DDoSDetector(BaseDetector):
     name = "DDoS"
 
     def __init__(self):
-        # { ip: deque of timestamps }
-        self.hits: dict[str, deque] = defaultdict(deque)
+        # { dst_port: deque of timestamps } — hitung per port yang diserang
+        self.hits: dict[int, deque] = defaultdict(deque)
 
     def process(self, log: dict) -> str | None:
-        ip  = log["src_ip"]
-        now = log["timestamp"]
-        q   = self.hits[ip]
+        if log.get("prefix") != "[FW]":
+            return None
+
+        dst_port = log["dst_port"]
+        now      = log["timestamp"]
+        q        = self.hits[dst_port]
 
         q.append(now)
 
@@ -26,7 +29,7 @@ class DDoSDetector(BaseDetector):
 
         if len(q) >= DDOS_THRESHOLD:
             return (
-                f"[DDOS] src={ip} "
+                f"[DDOS] dst_port={dst_port} "
                 f"packets={len(q)} in {DDOS_WINDOW}s"
             )
 
