@@ -1,7 +1,7 @@
 # mitigation/mitigator.py
 from datetime import datetime
 from librouteros.exceptions import TrapError, ConnectionClosed
-from mitigation.mikrotik_api import get_connection
+from mikrotik_api import get_connection
 
 
 class Mitigator:

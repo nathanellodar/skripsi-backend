@@ -5,7 +5,7 @@ from datetime import datetime
 LOG_REGEX = re.compile(
     r'(?P<ts>[\d\-T\:\.\+]+)'
     r'.*?'
-    r'(?P<prefix>\[FW[^\]]*\])'          # ekstrak [FW] atau [FW-FLOOD]
+    r'(?P<prefix>\[FW[^\]]*\])'
     r'.*?'
     r'proto (?P<proto>\w+)'
     r'(?:\s*\([^)]+\))?'
@@ -29,7 +29,7 @@ def parse_log(line: str) -> dict | None:
 
     return {
         "timestamp": timestamp,
-        "prefix":    m.group("prefix"),   # [FW] atau [FW-FLOOD]
+        "prefix":    m.group("prefix"),
         "proto":     m.group("proto").upper(),
         "src_ip":    m.group("src_ip"),
         "src_port":  int(m.group("src_port")) if m.group("src_port") else 0,
@@ -37,3 +37,4 @@ def parse_log(line: str) -> dict | None:
         "dst_port":  int(m.group("dst_port")) if m.group("dst_port") else 0,
         "raw":       line,
     }
+

@@ -1,14 +1,20 @@
 # main.py
+# CHANGED: tambah init_db() saat startup
+# CHANGED: hapus import notif — notifikasi sekarang dihandle di alert_writer.py
 from get_log import follow
 from parser import parse_log
 from engine import DetectionEngine
 from alert_writer import write_alert
 from mitigation import mitigator
+from db import init_db
 
 
 def main():
+    # CHANGED: inisiasi database sebelum mulai proses log
+    init_db()
+
     engine    = DetectionEngine()
-    mitigators = mitigator.Mitigator()
+    Mitigator = mitigator.Mitigator()
 
     print("[main] System started. Waiting for logs...\n")
 
@@ -24,11 +30,11 @@ def main():
             # Console — semua alert tampil
             print(f"  !! {alert}")
 
-            # File — deduplikasi per IP per jam
+            # CHANGED: write_alert sekarang simpan ke DB + kirim notif ke n8n
             write_alert(alert, log)
 
             # Mitigasi — blok IP di MikroTik
-            mitigators.handle(alert, log)
+            Mitigator.handle(alert, log)
 
 
 if __name__ == "__main__":

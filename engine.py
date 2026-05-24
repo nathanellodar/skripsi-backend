@@ -19,3 +19,10 @@ class DetectionEngine:
             if result:
                 alerts.append(result)
         return alerts
+
+    def get_detector(self, name: str) -> BaseDetector | None:
+        """Cari detector berdasarkan nama. Untuk akses reload_ports() dll."""
+        for detector in self.detectors:
+            if detector.name == name:
+                return detector
+        return None
