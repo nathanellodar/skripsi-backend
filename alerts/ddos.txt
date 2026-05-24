@@ -1,7 +1,0 @@
-[2026-05-07 02:33:38] [DDOS] dst_port=4446 packets=20 in 5s
-[2026-05-07 02:34:10] [DDOS] dst_port=4447 packets=20 in 5s
-[2026-05-07 02:38:08] [DDOS] dst_port=5555 packets=20 in 5s
-[2026-05-07 02:41:36] [DDOS] dst_port=5578 packets=20 in 5s
-[2026-05-07 02:42:52] [DDOS] dst_port=5579 packets=20 in 5s
-[2026-05-07 02:46:56] [DDOS] dst_port=5580 packets=20 in 5s
-[2026-05-07 02:50:52] [DDOS] dst_port=5585 packets=20 in 5s
