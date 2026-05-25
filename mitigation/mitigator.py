@@ -57,7 +57,7 @@ class Mitigator:
         dst_port = log.get("dst_port", 0)
         proto    = log.get("proto", "TCP")
 
-        ip_key   = f"{attack_type}:{src_ip}"
+        ip_key   = f"{attack_type}:{src_ip}:{dst_port}"  # FIXED: per IP+port agar beda port tercatat
         port_key = DROP_ALL_KEY if attack_type in BLOCK_ALL_PORT_TYPES else f"{dst_port}/{proto.lower()}"
 
         if ip_key in self._listed and port_key in self._drop_rules_created:

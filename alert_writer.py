@@ -168,16 +168,15 @@ def write_alert(alert: str, log: dict) -> None:
         return
 
     src_ip   = log["src_ip"]
+    dst_port = log.get("dst_port", 0)
+    proto    = log.get("proto", "-")
     ts       = log["timestamp"]
+    ts_str   = ts.strftime("%Y-%m-%d %H:%M:%S")
     hour_key = ts.strftime("%Y-%m-%d %H")
-    dedup    = (attack_type, src_ip, hour_key)
+    dedup    = (attack_type, src_ip, dst_port, hour_key)  # per IP+port+jam
 
     if dedup in _written:
         return
-
-    dst_port = log.get("dst_port", 0)
-    proto    = log.get("proto", "-")
-    ts_str   = ts.strftime("%Y-%m-%d %H:%M:%S")
 
     # ── Simpan ke MariaDB ────────────────────────────────────────────────────
     try:
