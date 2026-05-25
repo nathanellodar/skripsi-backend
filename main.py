@@ -1,28 +1,41 @@
 # main.py
+# CHANGED: tambah init_db() saat startup
+# CHANGED: hapus import notif — notifikasi sekarang dihandle di alert_writer.py
 from get_log import follow
 from parser import parse_log
 from engine import DetectionEngine
+from alert_writer import write_alert
+from mitigation import mitigator
+from db import init_db
 
-LOG_FILE = "log-example.txt"
 
 def main():
-    engine = DetectionEngine()
+    # CHANGED: inisiasi database sebelum mulai proses log
+    init_db()
 
-    with open(LOG_FILE, "r") as f:
-        # Read all existing lines instead of following
-        lines = f.readlines()
-        for line in lines:
-            line = line.strip()
-            if line:  # Skip empty lines
-                log = parse_log(line)
-                # Print parsed log for debugging
-                print(f"Parsed: {log['src_ip']}:{log['src_port']} -> {log['dst_ip']}:{log['dst_port']} ({log['proto']})")
-                alerts = engine.process(log)
-                # print("LOG:", log)
+    engine    = DetectionEngine()
+    Mitigator = mitigator.Mitigator()
 
-                for alert in alerts:
-                    print(alert)
-                    print("   Raw:", log["raw"])
+    print("[main] System started. Waiting for logs...\n")
+
+    for line in follow():
+        log = parse_log(line)
+        if not log:
+            continue
+
+        print(f"[LOG] {log['src_ip']}:{log['src_port']} -> {log['dst_ip']}:{log['dst_port']} ({log['proto']})")
+
+        alerts = engine.process(log)
+        for alert in alerts:
+            # Console — semua alert tampil
+            print(f"  !! {alert}")
+
+            # CHANGED: write_alert sekarang simpan ke DB + kirim notif ke n8n
+            write_alert(alert, log)
+
+            # Mitigasi — blok IP di MikroTik
+            Mitigator.handle(alert, log)
+
 
 if __name__ == "__main__":
     main()

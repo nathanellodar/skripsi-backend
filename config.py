@@ -1,10 +1,15 @@
 # config.py
 
-BRUTE_FORCE_THRESHOLD = 3      # 3 attempts
-BRUTE_FORCE_WINDOW = 10        # dalam 10 detik
+# --- Brute Force ---
+# Service MikroTik yang dianggap target brute force (nama dari ip/service)
+BRUTE_FORCE_SERVICES  = {"ssh", "telnet", "winbox", "ftp", "api", "api-ssl"}
+BRUTE_FORCE_THRESHOLD = 3                    # hits dalam window
+BRUTE_FORCE_WINDOW    = 0.5                  # detik
 
-PORTSCAN_THRESHOLD = 2        # 2 port berbeda (lowered for testing)
-PORTSCAN_WINDOW = 10          # dalam 10 detik
-
-DDOS_THRESHOLD = 2            # 2 request (lowered for testing)
-DDOS_WINDOW = 5               # dalam 5 detik
+# --- Port Scan ---
+PORTSCAN_THRESHOLD = 30   # jumlah port unik dalam window
+PORTSCAN_WINDOW    = 5  # detik
+    
+# --- DDoS ---
+DDOS_THRESHOLD = 20  # total paket dari 1 IP dalam window
+DDOS_WINDOW    = 1.5    # detik
