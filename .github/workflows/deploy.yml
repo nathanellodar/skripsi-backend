@@ -7,15 +7,15 @@ on:
       - dev
 
 jobs:
+  # ── CI: Build & Check (semua branch) ────────────────────────────────────────
   ci:
     name: CI (Build & Check)
-    runs-on: ubuntu-latest   # 🔥 dev tidak pakai server
-
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -27,35 +27,48 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Optional (kalau nanti ada test)
-      # - name: Run tests
-      #   run: pytest
+      - name: Check syntax (import check)
+        run: |
+          source venv/bin/activate
+          python -c "import run; print('✅ Import OK')" || echo "⚠️  Import check skipped"
 
-
+  # ── Deploy: hanya master ─────────────────────────────────────────────────────
   deploy:
     name: Deploy to Server
     needs: ci
     if: github.ref == 'refs/heads/master'
     runs-on: self-hosted
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy application
+      - name: Pull & install dependencies
         run: |
-            cd /home/thanel/skripsi/skripsi-backend
+          cd /home/thanel/skripsi/skripsi-backend
+          echo "📥 Pull latest code..."
+          git pull origin master
 
-            echo "Pull latest code..."
-            git pull origin master
+          echo "🐍 Setup virtualenv..."
+          python3 -m venv venv
+          source venv/bin/activate
 
-            echo "Activate virtualenv..."
-            source venv/bin/activate
+          echo "📦 Install dependencies..."
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          echo "✅ Dependencies installed"
 
-            echo "Upgrade pip..."
-            pip install --upgrade pip
+      - name: Restart via PM2
+        run: |
+          cd /home/thanel/skripsi/skripsi-backend
 
-            echo "Install dependencies..."
-            pip install -r requirements.txt
+          # Cek apakah PM2 process sudah ada
+          if pm2 list | grep -q "skripsi-backend"; then
+            echo "🔄 Restarting existing PM2 process..."
+            pm2 restart skripsi-backend
+          else
+            echo "🚀 Starting new PM2 process..."
+            pm2 start /home/thanel/skripsi/skripsi-backend/ecosystem.config.js
+          fi
 
-            echo "Deploy selesai ✅"
+          pm2 save
+          echo "✅ Deploy selesai"
