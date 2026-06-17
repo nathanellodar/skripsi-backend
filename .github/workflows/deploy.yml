@@ -20,6 +20,11 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install MariaDB Connector/C (system dependency untuk pip mariadb)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libmariadb3 libmariadb-dev
+
       - name: Install dependencies
         run: |
           python -m venv venv
@@ -30,7 +35,7 @@ jobs:
       - name: Check syntax (import check)
         run: |
           source venv/bin/activate
-          python -c "import run; print('✅ Import OK')" || echo "⚠️  Import check skipped"
+          python -c "import fastapi; import uvicorn; import mariadb; print('✅ Import OK')"
 
   # ── Deploy: hanya master ─────────────────────────────────────────────────────
   deploy:
@@ -61,13 +66,12 @@ jobs:
         run: |
           cd /home/thanel/skripsi/skripsi-backend
 
-          # Cek apakah PM2 process sudah ada
           if pm2 list | grep -q "skripsi-backend"; then
             echo "🔄 Restarting existing PM2 process..."
             pm2 restart skripsi-backend
           else
             echo "🚀 Starting new PM2 process..."
-            pm2 start /home/thanel/skripsi/skripsi-backend/ecosystem.config.js
+            pm2 start ecosystem.config.js
           fi
 
           pm2 save
