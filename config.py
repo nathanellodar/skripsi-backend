@@ -3,7 +3,7 @@
 # --- Brute Force ---
 # Service MikroTik yang dianggap target brute force (nama dari ip/service)
 BRUTE_FORCE_SERVICES  = {"ssh", "telnet", "winbox", "ftp", "api", "api-ssl"}
-BRUTE_FORCE_THRESHOLD = 5
+BRUTE_FORCE_THRESHOLD = 10
 BRUTE_FORCE_WINDOW    = 0.5                  # detik
 
 # --- Port Scan ---
