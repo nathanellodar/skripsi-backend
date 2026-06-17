@@ -44,6 +44,9 @@ class BruteForceDetector(BaseDetector):
         while q and q[0] < cutoff:
             q.popleft()
 
+        # sementara tambah ini
+        print(f"[DEBUG BRUTE] ip={ip} port={log['dst_port']} service={self._service_ports.get(log['dst_port'], 'unknown')} hits={len(q)} threshold={BRUTE_FORCE_THRESHOLD}")
+
         if len(q) >= BRUTE_FORCE_THRESHOLD:
             label = self.port_labels.get(log["dst_port"], f"port {log['dst_port']}")
             return (
